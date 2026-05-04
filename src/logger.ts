@@ -6,7 +6,7 @@ import { showDate } from "@/utilities";
 export function log(label: string, data?: unknown) {
   const now = new Date();
   fs.appendFileSync(
-    path.join(env.LOG_DIRPATH, `${showDate(now)}.txt`),
+    path.join(env.LOGS_DIRPATH, `${showDate(now)}.txt`),
     `[LOG ${now.toISOString()}] ${label}${data === undefined ? "" : `\n${JSON.stringify(data, null, 4)}`}`,
   );
 }

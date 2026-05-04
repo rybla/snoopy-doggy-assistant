@@ -125,9 +125,9 @@ export const extendKnowledgeBaseWithDocuments = ai.defineFlow(
   },
 );
 
-export const queryKnowledgeBase = ai.defineFlow(
+export const searchKnowledgeBase = ai.defineFlow(
   {
-    name: "queryKnowledgeBase",
+    name: "searchKnowledgeBase",
     inputSchema: z.object({
       query: z.string(),
     }),

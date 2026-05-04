@@ -14,7 +14,8 @@ const EnvSchema = z.object({
     .transform((x) => x.split(" ").map((x) => parseInt(x))),
   HOST: z.string(),
   PORT: z.coerce.number(),
-  LOG_DIRPATH: z.string(),
+  LOGS_DIRPATH: z.string(),
+  FILES_DIRPATH: z.string(),
 });
 
 const env = EnvSchema.parse(process.env);
