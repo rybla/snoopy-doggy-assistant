@@ -1,5 +1,6 @@
 import ai from "@/ai";
 import { getSession, SessionIdSchema } from "@/ai/sessions";
+import { createTask } from "@/ai/tools/tasks";
 import { googleAI } from "@genkit-ai/google-genai";
 import { z } from "genkit";
 
@@ -21,8 +22,8 @@ export const normalChat = ai.defineFlow(
 
     const response = await ai.generate({
       model: googleAI.model("gemini-3.1-flash-lite-preview"),
-      // tools: [],
-      // maxTurns: 4,
+      tools: [createTask],
+      maxTurns: 4,
       messages: session.messages,
       prompt: input.prompt,
     });
