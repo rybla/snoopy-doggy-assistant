@@ -5,6 +5,7 @@
  */
 
 import { normalChat } from "@/ai/flows/chatting";
+import { updateKnowledgeBase } from "@/ai/flows/indexing";
 import * as db from "@/db";
 import type { SessionId } from "@/db/schema";
 import env from "@/env";
@@ -25,11 +26,6 @@ type MyContext = Context & SessionFlavor<SessionData>;
 const bot = new Bot<MyContext>(env.TELEGRAM_BOT_API_KEY);
 
 // ----------------
-
-/**
- * The ID of the most recent user the bot chatted with.
- */
-let mostRecentChatId: number | null = null;
 
 function initializeSessionData(): SessionData {
   return undefined;
@@ -56,11 +52,6 @@ bot.use(async (ctx, next) => {
     return;
   }
 
-  // Record the chat ID of the authorized user we are interacting with
-  if (ctx.chat?.id) {
-    mostRecentChatId = ctx.chat.id;
-  }
-
   await next();
 });
 
@@ -77,10 +68,12 @@ bot.command("start", async (ctx) => {
 
 bot.command("help", async (ctx) => {
   await ctx.react("👍");
+  await ctx.reply("TODO");
 });
 
 bot.command("settings", async (ctx) => {
   await ctx.react("👍");
+  await ctx.reply("TODO");
 });
 
 bot.command("tasks", async (ctx) => {
@@ -89,6 +82,11 @@ bot.command("tasks", async (ctx) => {
   await ctx.reply(
     `Active tasks:\n\n${tasks.map((task) => `- ${task.label}`).join("\n")}`,
   );
+});
+
+bot.command("info", async (ctx) => {
+  await ctx.react("👍");
+  await ctx.reply(`\`\`\`${JSON.stringify(ctx.session, null, 4)}\`\`\``);
 });
 
 bot.on(":text", async (ctx) => {
@@ -118,51 +116,51 @@ bot.on(":text", async (ctx) => {
   }
 });
 
-// ----------------
+bot.on(":photo", async (ctx) => {
+  await ctx.reply("I can't respond to photos yet.");
+});
 
+// ----------------
 /**
- * Schedules a message to be sent every day at a random time between 9am and 5pm.
+ * Schedules a process to update the knowledge base every day at 5:00 AM.
+ * The update process fetches messages starting from one day before the current time.
  */
-function scheduleNextDailyMessage() {
+function scheduleDailyKnowledgeBaseUpdate() {
   const now = new Date();
 
-  const nextTarget = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  // Random time between 09:00:00 and 16:59:59
-  const randomHour = 9 + Math.floor(Math.random() * 8);
-  const randomMinute = Math.floor(Math.random() * 60);
-  const randomSecond = Math.floor(Math.random() * 60);
-
-  nextTarget.setHours(randomHour, randomMinute, randomSecond);
+  const nextTarget = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    5, // 5 AM
+    0,
+    0,
+  );
 
   if (nextTarget.getTime() <= now.getTime()) {
-    // If the random time for today has already passed, schedule for tomorrow
+    // If 5am today has already passed, schedule for tomorrow
     nextTarget.setDate(nextTarget.getDate() + 1);
-    const nextRandomHour = 9 + Math.floor(Math.random() * 8);
-    const nextRandomMinute = Math.floor(Math.random() * 60);
-    const nextRandomSecond = Math.floor(Math.random() * 60);
-    nextTarget.setHours(nextRandomHour, nextRandomMinute, nextRandomSecond);
   }
 
   const delay = nextTarget.getTime() - now.getTime();
 
   setTimeout(() => {
     void (async () => {
-      if (mostRecentChatId !== null) {
-        try {
-          await bot.api.sendMessage(mostRecentChatId, "Hi!");
-        } catch (error) {
-          console.error("Failed to send scheduled message:", error);
-        }
+      try {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        await updateKnowledgeBase({ startDate: yesterday });
+      } catch (error) {
+        console.error("Failed to update knowledge base:", error);
       }
       // Schedule the next one after executing
-      scheduleNextDailyMessage();
+      scheduleDailyKnowledgeBaseUpdate();
     })();
   }, delay);
 }
 
 // Start the scheduler
-scheduleNextDailyMessage();
+scheduleDailyKnowledgeBaseUpdate();
 
 // ----------------
 
