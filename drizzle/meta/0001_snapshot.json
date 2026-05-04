@@ -56,9 +56,7 @@
       "indexes": {
         "uniqueDiaryEntry": {
           "name": "uniqueDiaryEntry",
-          "columns": [
-            "diaryEntryId"
-          ],
+          "columns": ["diaryEntryId"],
           "isUnique": true
         }
       },
@@ -67,12 +65,8 @@
           "name": "diaryEntryMessages_diaryEntryId_diaryEntries_id_fk",
           "tableFrom": "diaryEntryMessages",
           "tableTo": "diaryEntries",
-          "columnsFrom": [
-            "diaryEntryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["diaryEntryId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -80,12 +74,8 @@
           "name": "diaryEntryMessages_messageId_messages_id_fk",
           "tableFrom": "diaryEntryMessages",
           "tableTo": "messages",
-          "columnsFrom": [
-            "messageId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["messageId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -149,12 +139,8 @@
           "name": "messages_sessionId_sessions_id_fk",
           "tableFrom": "messages",
           "tableTo": "sessions",
-          "columnsFrom": [
-            "sessionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sessionId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

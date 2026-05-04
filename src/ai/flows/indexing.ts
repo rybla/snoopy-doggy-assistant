@@ -4,7 +4,7 @@ import {
   knowledgeBaseRef,
   knowledgeBaseTableName,
 } from "@/ai/retrievers";
-import { getMessagesSince } from "@/db";
+import * as db from "@/db";
 import env from "@/env";
 import { matchEnum, showError } from "@/utilities";
 import { googleAI } from "@genkit-ai/google-genai";
@@ -178,12 +178,13 @@ export const updateKnowledgeBase = ai.defineFlow(
   async (input) => {
     try {
       // Fetch messages from the database that occurred after the given startDate.
-      const messages = await getMessagesSince({ startDate: input.startDate });
+      const messages = await db.getMessagesSince({
+        startDate: input.startDate,
+      });
 
       // If there are no new messages, we can return early with success.
-      if (messages.length === 0) {
+      if (messages.length === 0)
         return { success: true, paragraphsCount: 0 } as const;
-      }
 
       const transcript = messages
         .map((m) =>
@@ -195,13 +196,13 @@ export const updateKnowledgeBase = ai.defineFlow(
               return "";
             },
             model() {
-              return `**Assistant**\n\n${m.data.content
+              return `**${env.ASSISTANT_NAME}** (assistant)\n\n${m.data.content
                 .map((c) => (c.text === undefined ? [] : [c.text]))
                 .flat()
                 .join("")}\n\n`;
             },
             user() {
-              return `**${env.USER_NAME}**\n\n${m.data.content
+              return `**${env.USER_NAME}** (user)\n\n${m.data.content
                 .map((c) => (c.text === undefined ? [] : [c.text]))
                 .flat()
                 .join("")}\n\n`;
@@ -228,26 +229,48 @@ ${transcript}
         `.trim(),
         output: {
           schema: z.object({
-            paragraphs: z.array(z.string()),
+            paragraphs: z.array(
+              z
+                .string()
+                .describe(
+                  "A single paragraph about a specific topic discussed in the transcript.",
+                ),
+            ),
+            summary: z
+              .string()
+              .describe(
+                "A comprehensive one-paragraph summary of the entire transcript.",
+              ),
           }),
         },
       });
-
-      const paragraphs = response.output?.paragraphs;
+      const output = response.output;
+      if (output === null)
+        throw new Error(
+          `Generation stopped because ${response.finishReason}${response.finishMessage === undefined ? "" : `: ${response.finishMessage}`}`,
+        );
 
       // If the model did not generate any valid paragraphs, return early.
-      if (!paragraphs || paragraphs.length === 0) {
+      if (output.paragraphs.length === 0)
         return { success: true, paragraphsCount: 0 } as const;
-      }
+
+      // Add a diary entry using the summary.
+      await db.addDiaryEntry({
+        messageIds: messages.map((m) => m.id),
+        content: output.summary,
+      });
 
       // Feed the combined paragraphs into the extendKnowledgeBase flow
       // so they can be chunked, indexed, and stored in the vector database.
       await extendKnowledgeBase({
-        text: paragraphs.join("\n"),
+        text: output.paragraphs.join("\n"),
         source: "updateKnowledgeBase",
       });
 
-      return { success: true, paragraphsCount: paragraphs.length } as const;
+      return {
+        success: true,
+        paragraphsCount: output.paragraphs.length,
+      } as const;
     } catch (error) {
       return { success: false, error: showError(error) } as const;
     }

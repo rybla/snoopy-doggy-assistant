@@ -20,7 +20,7 @@ const db = drizzle(client, {
 });
 
 // ----------------------------------------------------------------------------
-// sessions and messages
+// sessions, messages, diary entries
 // ----------------------------------------------------------------------------
 
 export async function createSession(_input: object) {
@@ -59,6 +59,43 @@ export async function addMessages(input: {
       data: m,
     })),
   );
+}
+
+export async function addDiaryEntry(input: {
+  messageIds: schema.MessageId[];
+  content: string;
+}) {
+  const timestamp = new Date();
+
+  const diaryEntry = (
+    await db
+      .insert(schema.diaryEntries)
+      .values([
+        {
+          timestamp,
+          content: input.content,
+        },
+      ])
+      .returning()
+  )[0]!;
+
+  await db.insert(schema.diaryEntryMessages).values(
+    input.messageIds.map((messageId) => ({
+      messageId,
+      diaryEntryId: diaryEntry.id,
+    })),
+  );
+}
+
+/**
+ * Retrieves the most recent diary entry from the database.
+ * @returns A promise that resolves to the latest diary entry, or undefined if none exist.
+ */
+export async function getLastDiaryEntry() {
+  // Find the first diary entry when ordered by timestamp in descending order
+  return await db.query.diaryEntries.findFirst({
+    orderBy: (diaryEntry, { desc }) => desc(diaryEntry.timestamp),
+  });
 }
 
 /**
