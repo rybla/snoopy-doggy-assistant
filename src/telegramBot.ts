@@ -14,7 +14,11 @@ import { PDFParse } from "pdf-parse";
 import type { SessionId } from "@/db/schema";
 import env from "@/env";
 import { scheduleDailyAction } from "@/schedule";
-import { escapeMarkdown, showError } from "@/utilities";
+import {
+  escapeMarkdown,
+  escapeMarkdownCodeBlock,
+  showError,
+} from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
 
 type SessionData =
@@ -107,9 +111,9 @@ bot.command("tasks", async (ctx) => {
 bot.command("info", async (ctx) => {
   await ctx.react("👍");
   // Stringify the session data with 4-space indentation
-  const sessionJson = JSON.stringify(ctx.session ?? null, null, 4);
-  // For MarkdownV2 code blocks, only backticks and backslashes need to be escaped
-  const escapedJson = sessionJson.replace(/[\\`]/g, "\\$&");
+  const escapedJson = escapeMarkdownCodeBlock(
+    JSON.stringify(ctx.session ?? null, null, 4),
+  );
   await ctx.reply(`\`\`\`json\n${escapedJson}\n\`\`\``, {
     parse_mode: "MarkdownV2",
   });

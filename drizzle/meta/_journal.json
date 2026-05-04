@@ -8,6 +8,13 @@
       "when": 1777917824061,
       "tag": "0000_lowly_freak",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777932503052,
+      "tag": "0001_true_bishop",
+      "breakpoints": true
     }
   ]
 }

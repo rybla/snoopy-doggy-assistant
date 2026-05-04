@@ -185,6 +185,30 @@ export const updateKnowledgeBase = ai.defineFlow(
         return { success: true, paragraphsCount: 0 } as const;
       }
 
+      const transcript = messages
+        .map((m) =>
+          matchEnum(m.data.role, {
+            system() {
+              return "";
+            },
+            tool() {
+              return "";
+            },
+            model() {
+              return `**Assistant**\n\n${m.data.content
+                .map((c) => (c.text === undefined ? [] : [c.text]))
+                .flat()
+                .join("")}\n\n`;
+            },
+            user() {
+              return `**${env.USER_NAME}**\n\n${m.data.content
+                .map((c) => (c.text === undefined ? [] : [c.text]))
+                .flat()
+                .join("")}\n\n`;
+            },
+          }),
+        )
+        .join("");
       // Use AI to process the messages and generate an exhaustive collection of simple sentences.
       // We instruct the model to use the '<subject> <verb> <object>' structure for optimal retrieval later.
       const response = await ai.generate({
@@ -200,30 +224,7 @@ Your task is to extract important details from a chat transcript between an assi
         prompt: `
 Transcript:
 
-${messages
-  .map((m) =>
-    matchEnum(m.data.role, {
-      system() {
-        return "";
-      },
-      tool() {
-        return "";
-      },
-      model() {
-        return `**Assistant**\n\n${m.data.content
-          .map((c) => (c.text === undefined ? [] : [c.text]))
-          .flat()
-          .join("")}\n\n`;
-      },
-      user() {
-        return `**${env.USER_NAME}**\n\n${m.data.content
-          .map((c) => (c.text === undefined ? [] : [c.text]))
-          .flat()
-          .join("")}\n\n`;
-      },
-    }),
-  )
-  .join("")}
+${transcript}
         `.trim(),
         output: {
           schema: z.object({
