@@ -25,3 +25,7 @@ export function tryBlock<T>(
 export function do_<T>(k: () => T): T {
   return k();
 }
+
+export function showDate(date: Date): string {
+  return date.toISOString().split("T")[0]!;
+}

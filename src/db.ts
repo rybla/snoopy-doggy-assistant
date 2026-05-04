@@ -20,12 +20,12 @@ const db = drizzle(client, {
 // queries
 // ----------------------------------------------------------------------------
 
-export function createTask(input: {
+export async function createTask(input: {
   label: string;
   description: string;
   dueDate?: Date;
 }) {
-  return db.insert(schema.tasks).values({
+  return await db.insert(schema.tasks).values({
     label: input.label,
     description: input.description,
     dueDate: input.dueDate,
@@ -33,14 +33,15 @@ export function createTask(input: {
   });
 }
 
-export function completeTask(input: { id: number }) {
-  db.update(schema.tasks)
+export async function completeTask(input: { id: number }) {
+  await db
+    .update(schema.tasks)
     .set({ completionDate: new Date() })
     .where(eq(schema.tasks.id, input.id));
 }
 
-export function getActiveTasks() {
-  return db.query.tasks.findMany({
+export async function getActiveTasks() {
+  return await db.query.tasks.findMany({
     where: (task, { isNull }) => isNull(task.completionDate),
   });
 }
