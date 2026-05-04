@@ -1,12 +1,13 @@
 import ai from "@/ai";
-import { Document, z } from "genkit";
+import { WriteMode } from "genkitx-lancedb";
+import { Document, DocumentDataSchema, z } from "genkit";
 import { chunk } from "llm-chunk";
-import { knowledgeBaseIndexer } from "@/ai/vectorIndices";
+import { knowledgeBaseRef } from "@/ai/retrievers";
 import { showError } from "@/utilities";
 
-export const addInformationToKnowledgeBase = ai.defineFlow(
+export const extendKnowledgeBase = ai.defineFlow(
   {
-    name: "indexGeneralInformation",
+    name: "extendKnowledgeBase",
     inputSchema: z.object({
       text: z.string(),
       source: z.string(),
@@ -38,8 +39,11 @@ export const addInformationToKnowledgeBase = ai.defineFlow(
       );
 
       await ai.index({
-        indexer: knowledgeBaseIndexer,
+        indexer: knowledgeBaseRef,
         documents,
+        options: {
+          writeMode: WriteMode.Overwrite,
+        } as never,
       });
 
       return {
@@ -53,5 +57,28 @@ export const addInformationToKnowledgeBase = ai.defineFlow(
         error: showError(error),
       } as const;
     }
+  },
+);
+
+export const queryKnowledgeBase = ai.defineFlow(
+  {
+    name: "queryKnowledgeBase",
+    inputSchema: z.object({
+      query: z.string(),
+    }),
+    outputSchema: z.object({
+      docs: z.array(DocumentDataSchema),
+    }),
+  },
+  async (input) => {
+    const docs = await ai.retrieve({
+      retriever: knowledgeBaseRef,
+      query: input.query,
+      options: {
+        k: 3,
+      } as never,
+    });
+
+    return { docs };
   },
 );

@@ -1,14 +1,15 @@
-import { knowledgeBaseIndexer } from "@/ai/vectorIndices";
-import { devLocalVectorstore } from "@genkit-ai/dev-local-vectorstore";
+import { knowledgeBaseDbUri, knowledgeBaseTableName } from "@/ai/retrievers";
 import { googleAI } from "@genkit-ai/google-genai";
 import { genkit } from "genkit";
+import { lancedb } from "genkitx-lancedb";
 
 const ai = genkit({
   plugins: [
     googleAI(),
-    devLocalVectorstore([
+    lancedb([
       {
-        indexName: knowledgeBaseIndexer.name,
+        dbUri: knowledgeBaseDbUri,
+        tableName: knowledgeBaseTableName,
         embedder: googleAI.embedder("gemini-embedding-001"),
       },
     ]),

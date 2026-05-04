@@ -1,5 +1,9 @@
 import ai from "@/ai";
-import { knowledgeBaseIndexer } from "@/ai/vectorIndices";
+import {
+  knowledgeBaseRef,
+  knowledgeBaseDbUri,
+  knowledgeBaseTableName,
+} from "@/ai/retrievers";
 import { Document, DocumentDataSchema, z } from "genkit";
 
 export const searchKnowledgeBase = ai.defineTool(
@@ -16,8 +20,15 @@ export const searchKnowledgeBase = ai.defineTool(
   },
   async (input) => {
     const docs: Document[] = await ai.retrieve({
-      retriever: knowledgeBaseIndexer,
+      retriever: knowledgeBaseRef,
       query: input.query,
+      options: {
+        k: 3,
+        whereFilter: null,
+        // vectorColumnName: knowledgeBaseVectorColumnName,
+        dbUri: knowledgeBaseDbUri,
+        tableName: knowledgeBaseTableName,
+      } as never,
     });
 
     return {
