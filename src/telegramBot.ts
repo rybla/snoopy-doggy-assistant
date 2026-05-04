@@ -9,6 +9,7 @@ import { createSession, type SessionId } from "@/ai/sessions";
 import env from "@/env";
 import { showError } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
+import * as db from "@/db";
 
 type SessionData = {
   sessionId: SessionId;
@@ -71,6 +72,14 @@ bot.command("help", async (ctx) => {
 
 bot.command("settings", async (ctx) => {
   await ctx.react("👍");
+});
+
+bot.command("tasks", async (ctx) => {
+  await ctx.react("👍");
+  const tasks = await db.getActiveTasks();
+  await ctx.reply(
+    `Active tasks:\n\n${tasks.map((task) => `- ${task.label}`).join("\n")}`,
+  );
 });
 
 bot.on(":text", async (ctx) => {
