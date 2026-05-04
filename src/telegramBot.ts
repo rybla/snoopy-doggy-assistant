@@ -5,10 +5,14 @@
  */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- required by "grammy" */
 
-import { Bot, Context, session, type SessionFlavor } from "grammy";
+import { normalChat } from "@/ai/flows/chatting";
+import { createSession, type SessionId } from "@/ai/sessions";
 import env from "@/env";
+import { showError } from "@/utilities";
+import { Bot, Context, session, type SessionFlavor } from "grammy";
 
 type SessionData = {
+  sessionId: SessionId;
   messageCount: number;
 };
 
@@ -21,7 +25,10 @@ const bot = new Bot<MyContext>(env.TELEGRAM_BOT_API_KEY);
 // ----------------
 
 function initializeSessionData(): SessionData {
-  return { messageCount: 0 };
+  return {
+    sessionId: createSession(),
+    messageCount: 0,
+  };
 }
 
 bot.use(
@@ -67,16 +74,23 @@ bot.command("settings", (ctx) => {
   ctx.react("👍");
 });
 
-bot.on("message", async (ctx) => {
-  ctx.session.messageCount++;
-  await ctx.reply(`You have send ${ctx.session.messageCount} messages`);
-});
-
 bot.on(":text", async (ctx) => {
-  await ctx.reply("Text!");
-});
-bot.on(":photo", async (ctx) => {
-  await ctx.reply("Photo!");
+  try {
+    await ctx.reply("Text!");
+
+    ctx.session.messageCount++;
+    await ctx.reply(`You have send ${ctx.session.messageCount} messages`);
+
+    console.log({ text: ctx.message!.text });
+    const response = await normalChat({
+      sessionId: ctx.session.sessionId,
+      prompt: ctx.message!.text,
+    });
+
+    await ctx.reply(response.response);
+  } catch (error) {
+    await ctx.reply(`Error: ${showError(error)}`);
+  }
 });
 
 // ----------------
