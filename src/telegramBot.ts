@@ -92,6 +92,8 @@ bot.command("info", async (ctx) => {
 
 bot.on(":text", async (ctx) => {
   try {
+    await ctx.api.sendChatAction(ctx.chat.id, "typing")
+
     let session = ctx.session;
     if (session === undefined) {
       const sessionRow = await db.createSession({
