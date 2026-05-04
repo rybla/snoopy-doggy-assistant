@@ -9,7 +9,8 @@ import { updateKnowledgeBase } from "@/ai/flows/indexing";
 import * as db from "@/db";
 import type { SessionId } from "@/db/schema";
 import env from "@/env";
-import { nextTimeOfDay, showError } from "@/utilities";
+import { scheduleDailyAction } from "@/schedule";
+import { showError } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
 
 type SessionData =
@@ -21,11 +22,11 @@ type SessionData =
 
 type MyContext = Context & SessionFlavor<SessionData>;
 
-// ----------------
+// ----------------------------------------------------------------------------
 
 const bot = new Bot<MyContext>(env.TELEGRAM_BOT_API_KEY);
 
-// ----------------
+// ----------------------------------------------------------------------------
 
 function initializeSessionData(): SessionData {
   return undefined;
@@ -120,34 +121,28 @@ bot.on(":photo", async (ctx) => {
   await ctx.reply("I can't respond to photos yet.");
 });
 
-// ----------------
-/**
- * Schedules a process to update the knowledge base every day at 5:00 AM.
- * The update process fetches messages starting from one day before the current time.
- */
-function scheduleDailyKnowledgeBaseUpdate() {
-  const now = new Date();
-  const next = nextTimeOfDay({ hour: 5, minute: 0 });
-  const delay = next.getTime() - now.getTime();
+// ----------------------------------------------------------------------------
+// Daily actions
+// ----------------------------------------------------------------------------
 
-  setTimeout(() => {
-    void (async () => {
-      try {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        await updateKnowledgeBase({ startDate: yesterday });
-      } catch (error) {
-        console.error("Failed to update knowledge base:", error);
-      }
-      // Schedule the next one after executing
-      scheduleDailyKnowledgeBaseUpdate();
-    })();
-  }, delay);
-}
+scheduleDailyAction({
+  label: "updateKnowledgeBaseWithDailyTranscript",
+  timeOfDay: { hour: 5, minute: 0 },
+  state: {} as {
+    previousResult?: typeof updateKnowledgeBase extends () => Promise<
+      infer Result
+    >
+      ? Result
+      : never;
+  },
+  async action(_state) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const result = await updateKnowledgeBase({ startDate: yesterday });
+    return { previousResult: result };
+  },
+});
 
-// Start the scheduler
-scheduleDailyKnowledgeBaseUpdate();
-
-// ----------------
+// ----------------------------------------------------------------------------
 
 await bot.start();

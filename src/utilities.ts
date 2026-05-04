@@ -93,28 +93,34 @@ export function matchEnum<S extends string, T>(s: S, k: { [k in S]: () => T }) {
 }
 
 /**
- * Computes the next time of day, starting from one minute after the current time,
- * that the time of day will be the specified hour and minute (in 24 hour time).
+ * Computes the next time of day, starting from one minute after the
+ * {@link startDate}, that the time of day will be the specified
+ * {@link timeOfDate} (in 24 hour time).
  *
+ * @param startDate -- The start date to find the next time of day right after.
  * @param timeOfDay - The hour and minute to target.
- * @returns A Date object representing the next occurrence of the specified time.
+ * @returns A Date object representing the next occurrence of the specified
+ * time.
  */
-export function nextTimeOfDay(timeOfDay: {
-  hour: number;
-  minute: number;
-}): Date {
+export function nextTimeOfDay(
+  startDate: Date,
+  timeOfDay: {
+    hour: number;
+    minute: number;
+  },
+): Date {
   // Get current time
   const now = new Date();
 
-  // Set the start time to one minute after now to find the "next" occurrence
-  const startTime = new Date(now.getTime() + 60000);
+  // Set the start date to one minute after now to find the "next" occurrence
+  startDate = new Date(startDate.getTime() + 60000);
 
   // Create the target date based on today with the specified hour and minute
   const targetDate = new Date(now);
   targetDate.setHours(timeOfDay.hour, timeOfDay.minute, 0, 0);
 
   // If the target date today is before the start time, then the next occurrence is tomorrow
-  if (targetDate.getTime() < startTime.getTime()) {
+  if (targetDate.getTime() < startDate.getTime()) {
     targetDate.setDate(targetDate.getDate() + 1);
   }
 
