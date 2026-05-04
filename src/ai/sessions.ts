@@ -1,9 +1,10 @@
 import { z, type MessageData } from "genkit";
 
+const SessionIdPrefix = "SessionId_";
 export type SessionId = z.infer<typeof SessionIdSchema>;
 export const SessionIdSchema = z
   .string()
-  .startsWith("SessionId_")
+  .refine((s) => s.startsWith(SessionIdPrefix))
   .brand("SessionId");
 
 export type Session = {
@@ -15,7 +16,9 @@ export const sessions: {
 } = {};
 
 export function createSession(): SessionId {
-  const sessionId = SessionIdSchema.parse(`SessionId_${crypto.randomUUID()}`);
+  const sessionId = SessionIdSchema.parse(
+    `${SessionIdPrefix}${crypto.randomUUID()}`,
+  );
   sessions[sessionId] = {
     messages: [],
   };
