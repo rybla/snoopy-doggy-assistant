@@ -51,3 +51,6 @@ setup: install drizzle-migrate
 
 [doc("Run build pipeline")]
 build: setup format typecheck lint test
+
+genkit-start entrypoint:
+    bun genkit start -- bun run {{entrypoint}}
