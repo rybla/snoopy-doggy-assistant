@@ -1,0 +1,26 @@
+{
+  "name": "snoopy-doggy",
+  "module": "index.ts",
+  "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
+    "@eslint/js": "^9.39.2",
+    "@types/adm-zip": "^0.5.8",
+    "@types/bun": "latest",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "10",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "globals": "^17.1.0",
+    "prettier": "^3.8.3",
+    "typescript-eslint": "^8.53.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@libsql/client": "^0.17.2",
+    "drizzle-orm": "^0.45.2"
+  }
+}
