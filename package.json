@@ -26,6 +26,7 @@
     "@libsql/client": "^0.17.2",
     "drizzle-orm": "^0.45.2",
     "genkit": "^1.32.0",
+    "grammy": "^1.42.0",
     "llm-chunk": "^0.0.1"
   }
 }
