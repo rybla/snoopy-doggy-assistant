@@ -76,3 +76,7 @@ export function escapeFilename(s: string): string {
   // and null characters with underscores.
   return s.replace(/[/:\\x00]/g, "_");
 }
+
+export function matchEnum<S extends string, T>(s: S, k: { [k in S]: () => T }) {
+  return k[s]();
+}
