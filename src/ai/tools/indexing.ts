@@ -23,11 +23,10 @@ export const searchKnowledgeBase = ai.defineTool(
       retriever: knowledgeBaseRef,
       query: input.query,
       options: {
-        k: 3,
-        whereFilter: null,
-        // vectorColumnName: knowledgeBaseVectorColumnName,
         dbUri: knowledgeBaseDbUri,
         tableName: knowledgeBaseTableName,
+        whereFilter: null,
+        k: 3,
       } as never,
     });
 

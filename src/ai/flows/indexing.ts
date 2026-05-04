@@ -2,7 +2,11 @@ import ai from "@/ai";
 import { WriteMode } from "genkitx-lancedb";
 import { Document, DocumentDataSchema, z } from "genkit";
 import { chunk } from "llm-chunk";
-import { knowledgeBaseRef } from "@/ai/retrievers";
+import {
+  knowledgeBaseDbUri,
+  knowledgeBaseRef,
+  knowledgeBaseTableName,
+} from "@/ai/retrievers";
 import { showError } from "@/utilities";
 
 export const extendKnowledgeBase = ai.defineFlow(
@@ -75,6 +79,9 @@ export const queryKnowledgeBase = ai.defineFlow(
       retriever: knowledgeBaseRef,
       query: input.query,
       options: {
+        dbUri: knowledgeBaseDbUri,
+        tableName: knowledgeBaseTableName,
+        whereFilter: null,
         k: 3,
       } as never,
     });
