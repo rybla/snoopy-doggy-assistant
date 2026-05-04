@@ -1,15 +1,43 @@
 import { log } from "@/logger";
-import { do_, nextTimeOfDay, showError } from "@/utilities";
+import { do_, nextTimeOfDay, randomItem, showError } from "@/utilities";
+
+export type TimeOfDay = { hour: number; minute: number };
 
 export function scheduleDailyAction<State>(input: {
   label: string;
-  timeOfDay: { hour: number; minute: number };
+  schedule:
+    | {
+        type: "timeOfDay";
+        timeOfDay: TimeOfDay;
+      }
+    | {
+        type: "sampleTimeOfDay";
+        timeOfDayOptions: TimeOfDay[];
+      };
   action: (state: State) => Promise<State>;
   state: State;
 }) {
+  if (
+    input.schedule.type === "sampleTimeOfDay" &&
+    input.schedule.timeOfDayOptions.length === 0
+  )
+    throw new Error(
+      `The options to sample the time of day from must be non-empty.`,
+    );
+
   function foo() {
     const now = new Date();
-    const next = nextTimeOfDay(now, input.timeOfDay);
+    const next = do_(() => {
+      switch (input.schedule.type) {
+        case "timeOfDay":
+          return nextTimeOfDay(now, input.schedule.timeOfDay);
+        case "sampleTimeOfDay":
+          return nextTimeOfDay(
+            now,
+            randomItem(input.schedule.timeOfDayOptions)!,
+          );
+      }
+    });
     const delay = next.getTime() - now.getTime();
 
     const state = input.state;

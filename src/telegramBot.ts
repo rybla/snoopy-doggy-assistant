@@ -23,10 +23,10 @@ type SessionData =
 type MyContext = Context & SessionFlavor<SessionData>;
 
 // ----------------------------------------------------------------------------
+// Define bot
+// ----------------------------------------------------------------------------
 
 const bot = new Bot<MyContext>(env.TELEGRAM_BOT_API_KEY);
-
-// ----------------------------------------------------------------------------
 
 function initializeSessionData(): SessionData {
   return undefined;
@@ -122,12 +122,15 @@ bot.on(":photo", async (ctx) => {
 });
 
 // ----------------------------------------------------------------------------
-// Daily actions
+// Scheduled actions
 // ----------------------------------------------------------------------------
 
 scheduleDailyAction({
   label: "updateKnowledgeBaseWithDailyTranscript",
-  timeOfDay: { hour: 5, minute: 0 },
+  schedule: {
+    type: "timeOfDay",
+    timeOfDay: { hour: 5, minute: 0 },
+  },
   state: {} as {
     previousResult?: typeof updateKnowledgeBase extends () => Promise<
       infer Result
@@ -143,6 +146,8 @@ scheduleDailyAction({
   },
 });
 
+// ----------------------------------------------------------------------------
+// Start bot
 // ----------------------------------------------------------------------------
 
 await bot.start();
