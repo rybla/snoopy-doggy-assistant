@@ -9,7 +9,7 @@ import { updateKnowledgeBase } from "@/ai/flows/indexing";
 import * as db from "@/db";
 import type { SessionId } from "@/db/schema";
 import env from "@/env";
-import { do_, nextTimeOfDay, showError } from "@/utilities";
+import { nextTimeOfDay, showError } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
 
 type SessionData =

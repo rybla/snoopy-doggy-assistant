@@ -40,7 +40,7 @@ typecheck:
 
 lint:
     @echo "Linting entire project"
-    bun eslint . --fix
+    bun eslint --fix .
 
 test:
     @echo "Testing entire project"

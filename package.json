@@ -23,6 +23,7 @@
   "dependencies": {
     "@genkit-ai/dev-local-vectorstore": "^1.32.0",
     "@genkit-ai/google-genai": "^1.32.0",
+    "@lancedb/lancedb": "^0.27.2",
     "@libsql/client": "^0.17.2",
     "drizzle-orm": "^0.45.2",
     "genkit": "^1.32.0",

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "path";
-import env from "./env";
-import { showDate } from "./utilities";
+import env from "@/env";
+import { showDate } from "@/utilities";
 
 export function log(label: string, data?: unknown) {
   const now = new Date();
