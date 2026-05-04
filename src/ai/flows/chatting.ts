@@ -1,5 +1,6 @@
 import ai from "@/ai";
 import { searchKnowledgeBase } from "@/ai/tools/indexing";
+import { createNote } from "@/ai/tools/notes";
 import { completeTask, createTask, getActiveTasks } from "@/ai/tools/tasks";
 import * as db from "@/db";
 import { SessionIdSchema } from "@/db/schema";
@@ -49,10 +50,20 @@ export const normalChat = ai.defineFlow(
     const response = await ai.generate({
       model: googleAI.model("gemini-3.1-flash-lite-preview"),
       config: {
-        googleSearchRetrieval: true,
+        // googleSearchRetrieval: true,
         // codeExecution: true,
+        thinkingConfig: {
+          thinkingLevel: "MEDIUM",
+        },
       },
-      tools: [createTask, getActiveTasks, completeTask, searchKnowledgeBase],
+      tools: [
+        createTask,
+        getActiveTasks,
+        completeTask,
+        searchKnowledgeBase,
+        createNote,
+      ],
+      toolChoice: "auto",
       maxTurns: 4,
       messages: session.messages
         .slice(session.messages.length - env.MAX_MESSAGES_LENGTH)

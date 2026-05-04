@@ -32,6 +32,8 @@ export const extendKnowledgeBase = ai.defineFlow(
   },
   async (input) => {
     try {
+      const now = Date.now();
+
       const chunks = chunk(input.text, {
         minLength: 100,
         maxLength: 1000,
@@ -41,7 +43,7 @@ export const extendKnowledgeBase = ai.defineFlow(
       });
 
       const documents = chunks.map((text) =>
-        Document.fromText(text, { source: input.source }),
+        Document.fromText(text, { source: input.source, timestamp: now }),
       );
 
       await ai.index({
@@ -91,9 +93,12 @@ export const extendKnowledgeBaseWithDocuments = ai.defineFlow(
   },
   async (input) => {
     try {
+      const now = Date.now();
+
       const documents = input.documents.map((item) =>
         Document.fromText(item.text, {
           source: item.source,
+          timestamp: now,
         }),
       );
 
