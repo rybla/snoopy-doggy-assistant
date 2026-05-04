@@ -6,10 +6,10 @@
 
 import { normalChat } from "@/ai/flows/chatting";
 import { createSession, type SessionId } from "@/ai/sessions";
+import * as db from "@/db";
 import env from "@/env";
 import { showError } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
-import * as db from "@/db";
 
 type SessionData = {
   sessionId: SessionId;

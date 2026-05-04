@@ -60,5 +60,8 @@ build: setup format typecheck lint test
 genkit-start entrypoint:
     bun genkit start -- bun run {{entrypoint}}
 
+flows:
+    just genkit-start src/ai/flows.ts
+
 telegramBot:
     just genkit-start src/telegramBot.ts
