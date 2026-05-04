@@ -5,16 +5,18 @@
  */
 
 import { normalChat } from "@/ai/flows/chatting";
-import { createSession, type SessionId } from "@/ai/sessions";
 import * as db from "@/db";
+import type { SessionId } from "@/db/schema";
 import env from "@/env";
 import { showError } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
 
-type SessionData = {
-  sessionId: SessionId;
-  messageCount: number;
-};
+type SessionData =
+  | undefined
+  | {
+      sessionId: SessionId;
+      messageCount: number;
+    };
 
 type MyContext = Context & SessionFlavor<SessionData>;
 
@@ -30,10 +32,7 @@ const bot = new Bot<MyContext>(env.TELEGRAM_BOT_API_KEY);
 let mostRecentChatId: number | null = null;
 
 function initializeSessionData(): SessionData {
-  return {
-    sessionId: createSession(),
-    messageCount: 0,
-  };
+  return undefined;
 }
 
 bot.use(
@@ -94,10 +93,22 @@ bot.command("tasks", async (ctx) => {
 
 bot.on(":text", async (ctx) => {
   try {
-    ctx.session.messageCount++;
+    let session = ctx.session;
+    if (session === undefined) {
+      const sessionRow = await db.createSession({
+        systemPrompt: "TODO",
+      });
+      session = {
+        sessionId: sessionRow.id,
+        messageCount: 0,
+      };
+    }
+    ctx.session = session;
+
+    session.messageCount++;
 
     const response = await normalChat({
-      sessionId: ctx.session.sessionId,
+      sessionId: session.sessionId,
       prompt: ctx.message!.text,
     });
 

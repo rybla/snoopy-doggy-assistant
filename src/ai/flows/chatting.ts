@@ -1,6 +1,7 @@
 import ai from "@/ai";
-import { getSession, SessionIdSchema } from "@/ai/sessions";
 import { completeTask, createTask, getActiveTasks } from "@/ai/tools/tasks";
+import * as db from "@/db";
+import { SessionIdSchema } from "@/db/schema";
 import { googleAI } from "@genkit-ai/google-genai";
 import { z } from "genkit";
 
@@ -18,19 +19,28 @@ export const normalChat = ai.defineFlow(
   async (input) => {
     console.log("normalChat", { input });
 
-    const session = getSession(input.sessionId);
+    const session = await db.getSession({ id: input.sessionId });
+    if (session === undefined) throw new Error("No session");
 
     const response = await ai.generate({
       model: googleAI.model("gemini-3.1-flash-lite-preview"),
       tools: [createTask, getActiveTasks, completeTask],
       maxTurns: 4,
-      messages: session.messages,
+      messages: session.messages.map((m) => m.data),
+      system: session.systemPrompt,
       prompt: input.prompt,
     });
     if (response.message === undefined) throw new Error("No response");
-    session.messages.push({
-      role: "user",
-      content: [{ text: input.prompt }],
+
+    await db.addMessages({
+      sessionId: input.sessionId,
+      messages: [
+        {
+          role: "user",
+          content: [{ text: input.prompt }],
+        },
+        response.message,
+      ],
     });
 
     return {
