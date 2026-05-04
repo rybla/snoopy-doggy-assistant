@@ -140,7 +140,9 @@ bot.command("tasks", async (ctx) => {
 
   if (tasks.length === 0) {
     await ctx.reply(
-      `There are no active tasks. You can ask me to create new tasks for you.`,
+      escapeMarkdown(
+        `There are no active tasks. You can ask me to create new tasks for you.`,
+      ),
       {
         parse_mode: "MarkdownV2",
       },
