@@ -4,6 +4,7 @@ const EnvSchema = z.object({
   USERNAME: z.string(),
   MAX_MESSAGES_LENGTH: z.number(),
   CURRENT_LOCATION: z.string(),
+  NOTES_DIRECTORY: z.string(),
   //
   DATABASE_URL: z.string(),
   GOOGLE_API_KEY: z.string(),

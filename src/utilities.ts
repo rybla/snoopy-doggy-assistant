@@ -62,3 +62,17 @@ export function showTime(date: Date): string {
   // Combine into the required format
   return `${hh}:${min}`;
 }
+
+/**
+ * Escapes a string to be safe for use as a filename on MacOS.
+ * It replaces forward slashes (`/`), colons (`:`), and null characters (`\\0`)
+ * with underscores to ensure the string is a valid file name.
+ *
+ * @param s - The string to escape.
+ * @returns The escaped string safe for use as a filename.
+ */
+export function escapeFilename(s: string): string {
+  // Replace MacOS path separators (both POSIX '/' and HFS ':')
+  // and null characters with underscores.
+  return s.replace(/[/:\\x00]/g, "_");
+}
