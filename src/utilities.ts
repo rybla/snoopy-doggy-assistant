@@ -30,10 +30,35 @@ export function showDate(date: Date): string {
   return date.toISOString().split("T")[0]!;
 }
 
+/**
+ * Formats a given Date object into a string containing both date and time.
+ * @param date - The Date object to format.
+ * @returns A string in the format 'YYYY-MM-DD at HH:MM'.
+ */
 export function showDateTime(date: Date): string {
-  throw new Error("TODO: show date and time in format 'YYYY-MM-DD at HH:MM'");
+  // Extract local date components and pad to 2 digits
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+
+  // Extract local time components and pad to 2 digits
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+
+  // Combine into the required format
+  return `${yyyy}-${mm}-${dd} at ${hh}:${min}`;
 }
 
+/**
+ * Formats a given Date object into a string containing only the time.
+ * @param date - The Date object to format.
+ * @returns A string in the format 'HH:MM'.
+ */
 export function showTime(date: Date): string {
-  throw new Error("TODO: show time in format 'HH:MM'");
+  // Extract local time components and pad to 2 digits
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+
+  // Combine into the required format
+  return `${hh}:${min}`;
 }
