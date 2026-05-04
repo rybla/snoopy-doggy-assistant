@@ -29,6 +29,7 @@ export async function createSession(_input: object) {
       .insert(schema.sessions)
       .values({
         systemPrompt: await makeSystemPrompt(),
+        timestamp: new Date(),
       })
       .returning()
   )[0]!;
@@ -58,6 +59,10 @@ export async function addMessages(input: {
       data: m,
     })),
   );
+}
+
+export async function getMessagesSince(input: { startDate: Date }) {
+  throw new Error("TODO");
 }
 
 // ----------------------------------------------------------------------------

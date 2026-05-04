@@ -23,6 +23,7 @@ export const SessionIdSchema = z.number().brand("SessionId");
 
 export const sessions = sqliteTable("sessions", {
   id: integer("id").primaryKey({ autoIncrement: true }).$type<SessionId>(),
+  timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
   systemPrompt: text("systemPrompt").notNull(),
 });
 
