@@ -109,18 +109,16 @@ export function nextTimeOfDay(
     minute: number;
   },
 ): Date {
-  // Get current time
-  const now = new Date();
-
-  // Set the start date to one minute after now to find the "next" occurrence
-  startDate = new Date(startDate.getTime() + 60000);
-
-  // Create the target date based on today with the specified hour and minute
-  const targetDate = new Date(now);
+  // Create the target date based on the original start date with the specified hour and minute
+  const targetDate = new Date(startDate);
   targetDate.setHours(timeOfDay.hour, timeOfDay.minute, 0, 0);
 
+  // Set the start date to one minute after the given start date to find the "next" occurrence
+  // We advance the start date slightly to prevent returning the exact same time if it matches exactly
+  const effectiveStartDate = new Date(startDate.getTime() + 60000);
+
   // If the target date today is before the start time, then the next occurrence is tomorrow
-  if (targetDate.getTime() < startDate.getTime()) {
+  if (targetDate.getTime() < effectiveStartDate.getTime()) {
     targetDate.setDate(targetDate.getDate() + 1);
   }
 
