@@ -17,8 +17,16 @@ const EnvSchema = z.object({
   HOST: z.string(),
   PORT: z.coerce.number(),
   LOGS_DIRPATH: z.string(),
+  DIARY_GIF_FILEPATH: z.string(),
+  TASKS_GIF_FILEPATH: z.string(),
 });
 
 const env = EnvSchema.parse(process.env);
 
 export default env;
+
+if (!(await Bun.file(env.DIARY_GIF_FILEPATH).exists()))
+  console.error(`DIARY_GIF_FILEPATH doesn't exist: ${env.DIARY_GIF_FILEPATH}`);
+
+if (!(await Bun.file(env.TASKS_GIF_FILEPATH).exists()))
+  console.error(`TASKS_GIF_FILEPATH doesn't exist: ${env.TASKS_GIF_FILEPATH}`);

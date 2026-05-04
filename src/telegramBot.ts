@@ -8,11 +8,9 @@ import { summarize } from "@/ai/flows/analyses";
 import { makeSystemPrompt, normalChat } from "@/ai/flows/chatting";
 import { extendFilesIndex, updateKnowledgeBase } from "@/ai/flows/indexing";
 import * as db from "@/db";
-import fs from "fs/promises";
-import path from "path";
-import { PDFParse } from "pdf-parse";
 import type { SessionId } from "@/db/schema";
 import env from "@/env";
+import { log } from "@/logger";
 import { scheduleDailyAction } from "@/schedule";
 import {
   escapeMarkdown,
@@ -20,8 +18,10 @@ import {
   randomItem,
   showError,
 } from "@/utilities";
+import fs from "fs/promises";
 import { Bot, Context, InputFile, session, type SessionFlavor } from "grammy";
-import { log } from "@/logger";
+import path from "path";
+import { PDFParse } from "pdf-parse";
 
 type SessionData =
   | undefined
@@ -103,7 +103,7 @@ await bot.api.setMyCommands([
 ]);
 
 bot.command("test", async (ctx) => {
-  const gifFile = new InputFile("assets/diary.gif");
+  const gifFile = new InputFile(env.DIARY_GIF_FILEPATH);
   await ctx.replyWithAnimation(gifFile);
 });
 
@@ -118,28 +118,42 @@ bot.command("help", async (ctx) => {
   log("command: help");
 
   await ctx.react("👍");
-  await ctx.reply("TODO");
+  await ctx.reply("TODO: implement 'help' command");
 });
 
 bot.command("settings", async (ctx) => {
   log("command: settings");
 
   await ctx.react("👍");
-  await ctx.reply("TODO");
+  await ctx.reply("TODO: implement 'settings' command");
 });
 
 bot.command("tasks", async (ctx) => {
   log("command: tasks");
 
   await ctx.react("👍");
+
+  const gifFile = new InputFile(env.TASKS_GIF_FILEPATH);
+  await ctx.replyWithAnimation(gifFile);
+
   const tasks = await db.getActiveTasks();
-  // Format each task as a bullet point and escape the label
-  const taskList = tasks
-    .map((task) => `• ${escapeMarkdown(task.label)}`)
-    .join("\n");
-  await ctx.reply(`*Active tasks:*\n\n${taskList}`, {
-    parse_mode: "MarkdownV2",
-  });
+
+  if (tasks.length === 0) {
+    await ctx.reply(
+      `There are no active tasks. You can ask me to create new tasks for you.`,
+      {
+        parse_mode: "MarkdownV2",
+      },
+    );
+  } else {
+    // Format each task as a bullet point and escape the label
+    const taskList = tasks
+      .map((task) => `• ${escapeMarkdown(task.label)}`)
+      .join("\n");
+    await ctx.reply(`*Active tasks:*\n\n${taskList}`, {
+      parse_mode: "MarkdownV2",
+    });
+  }
 });
 
 bot.command("info", async (ctx) => {
@@ -148,7 +162,7 @@ bot.command("info", async (ctx) => {
   await ctx.react("👍");
   await ctx.reply(
     `\`\`\`json\n${escapeMarkdownCodeBlock(
-      JSON.stringify(ctx.session ?? null, null, 4),
+      JSON.stringify(ctx.session, null, 4),
     )}\n\`\`\``,
     {
       parse_mode: "MarkdownV2",
@@ -162,7 +176,7 @@ bot.on(":text", async (ctx) => {
   try {
     await ctx.api.sendChatAction(ctx.chat.id, "typing");
 
-    let session = await getSessionFromContext(ctx);
+    const session = await getSessionFromContext(ctx);
 
     const response = await normalChat({
       sessionId: session.sessionId,
@@ -238,7 +252,7 @@ bot.on(":document", async (ctx) => {
       `I've successfully processed your document. Here's a summary:\n\n${summaryResult.summary}\n\nI'm ready to answer questions about this document or any of the others in the files index.`,
     );
 
-    let session = await getSessionFromContext(ctx);
+    const session = await getSessionFromContext(ctx);
     await db.addMessages({
       sessionId: session.sessionId,
       messages: [
@@ -317,11 +331,11 @@ ${escapeMarkdown(lastDiaryEntry.content)}
       `.trim();
 
       for (const userId of env.TELEGRAM_ALLOWED_USER_IDS) {
-        // Create an InputFile object from the GIF file
-        const gifFile = new InputFile("assets/diary.gif");
-
         // Send the GIF as an animation to the user
-        await bot.api.sendAnimation(userId, gifFile);
+        await bot.api.sendAnimation(
+          userId,
+          new InputFile(env.DIARY_GIF_FILEPATH),
+        );
 
         // Send the summary message to the user
         await bot.api.sendMessage(userId, message, {
@@ -364,6 +378,10 @@ ${escapeMarkdown(randomTask.description)}
 
     // Send the message to all authorized users
     for (const userId of env.TELEGRAM_ALLOWED_USER_IDS) {
+      await bot.api.sendAnimation(
+        userId,
+        new InputFile(env.TASKS_GIF_FILEPATH),
+      );
       await bot.api.sendMessage(userId, message, {
         parse_mode: "MarkdownV2",
       });
