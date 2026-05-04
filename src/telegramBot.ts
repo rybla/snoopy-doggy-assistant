@@ -76,12 +76,11 @@ bot.command("settings", (ctx) => {
 
 bot.on(":text", async (ctx) => {
   try {
-    await ctx.reply("Text!");
-
     ctx.session.messageCount++;
-    await ctx.reply(`You have send ${ctx.session.messageCount} messages`);
+    await ctx.reply(`(You have send ${ctx.session.messageCount} messages)`);
 
     console.log({ text: ctx.message!.text });
+
     const response = await normalChat({
       sessionId: ctx.session.sessionId,
       prompt: ctx.message!.text,

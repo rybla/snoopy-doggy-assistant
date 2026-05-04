@@ -1,7 +1,7 @@
 import { z } from "genkit";
 
 const EnvSchema = z.object({
-  GEMINI_API_KEY: z.string(),
+  GOOGLE_API_KEY: z.string(),
   TELEGRAM_BOT_API_KEY: z.string(),
   TELEGRAM_ALLOWED_USER_IDS: z
     .string()
