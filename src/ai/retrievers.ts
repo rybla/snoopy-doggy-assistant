@@ -1,4 +1,4 @@
-import { lancedbRetrieverRef } from "genkitx-lancedb";
+import { lancedbRetrieverRef } from "@/lancedb";
 
 export const knowledgeBaseTableName = "table";
 export const knowledgeBaseDbUri = "databases/lance/v1";

@@ -9,7 +9,7 @@ import env from "@/env";
 import { matchEnum, showError } from "@/utilities";
 import { googleAI } from "@genkit-ai/google-genai";
 import { Document, DocumentDataSchema, z } from "genkit";
-import { WriteMode } from "genkitx-lancedb";
+import { WriteMode } from "@/lancedb";
 import { chunk } from "llm-chunk";
 
 export const extendKnowledgeBase = ai.defineFlow(

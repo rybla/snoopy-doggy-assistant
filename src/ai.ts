@@ -1,7 +1,7 @@
 import { knowledgeBaseDbUri, knowledgeBaseTableName } from "@/ai/retrievers";
 import { googleAI } from "@genkit-ai/google-genai";
 import { genkit } from "genkit";
-import { lancedb } from "genkitx-lancedb";
+import { lancedb } from "@/lancedb";
 
 const ai = genkit({
   plugins: [
