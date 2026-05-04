@@ -1,6 +1,10 @@
 import { z } from "genkit";
 
 const EnvSchema = z.object({
+  USERNAME: z.string(),
+  MAX_MESSAGES_LENGTH: z.number(),
+  CURRENT_LOCATION: z.string(),
+  //
   DATABASE_URL: z.string(),
   GOOGLE_API_KEY: z.string(),
   TELEGRAM_BOT_API_KEY: z.string(),

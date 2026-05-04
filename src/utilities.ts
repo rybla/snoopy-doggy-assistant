@@ -29,3 +29,11 @@ export function do_<T>(k: () => T): T {
 export function showDate(date: Date): string {
   return date.toISOString().split("T")[0]!;
 }
+
+export function showDateTime(date: Date): string {
+  throw new Error("TODO: show date and time in format 'YYYY-MM-DD at HH:MM'");
+}
+
+export function showTime(date: Date): string {
+  throw new Error("TODO: show time in format 'HH:MM'");
+}

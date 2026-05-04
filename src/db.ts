@@ -1,3 +1,4 @@
+import { makeSystemPrompt } from "@/ai/flows/chatting";
 import type { SessionId, TaskId } from "@/db/schema";
 import * as schema from "@/db/schema";
 import env from "@/env";
@@ -22,12 +23,12 @@ const db = drizzle(client, {
 // sessions and messages
 // ----------------------------------------------------------------------------
 
-export async function createSession(input: { systemPrompt: string }) {
+export async function createSession(_input: object) {
   return (
     await db
       .insert(schema.sessions)
       .values({
-        systemPrompt: input.systemPrompt,
+        systemPrompt: await makeSystemPrompt(),
       })
       .returning()
   )[0]!;
