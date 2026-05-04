@@ -1,4 +1,4 @@
-# Design
+# Exploration
 
 ## Tool Ideas
 
