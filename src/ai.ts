@@ -10,7 +10,7 @@ const ai = genkit({
       {
         dbUri: knowledgeBaseDbUri,
         tableName: knowledgeBaseTableName,
-        embedder: googleAI.embedder("gemini-embedding-001"),
+        embedder: googleAI.embedder("gemini-embedding-2-preview"),
       },
     ]),
   ],
