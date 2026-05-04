@@ -73,6 +73,8 @@ await bot.api.setMyCommands([
   { command: "start", description: "Start session." },
   { command: "help", description: "Learn how to use this bot" },
   { command: "settings", description: "Configure your preferences" },
+  { command: "tasks", description: "Get the active tasks." },
+  { command: "info", description: "Get current session info." },
 ]);
 
 bot.command("start", async (ctx) => {
