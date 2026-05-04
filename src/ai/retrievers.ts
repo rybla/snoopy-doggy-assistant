@@ -7,9 +7,9 @@ export const knowledgeBaseRef = lancedbRetrieverRef({
   tableName: knowledgeBaseTableName,
 });
 
-export const filesTableName = "table";
-export const filesDbUri = "databases/lance/files/v1";
-export const filesRef = lancedbRetrieverRef({
-  displayName: "Files",
-  tableName: filesTableName,
+export const filesIndexTableName = "table";
+export const filesIndexDbUri = "databases/lance/filesIndex/v1";
+export const filesIndexRef = lancedbRetrieverRef({
+  displayName: "FilesIndex",
+  tableName: filesIndexTableName,
 });

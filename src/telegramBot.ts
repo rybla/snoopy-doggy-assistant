@@ -4,7 +4,7 @@
  * This module contains the script for serving the telegram bot for this app.
  */
 
-import { normalChat } from "@/ai/flows/chatting";
+import { makeSystemPrompt, normalChat } from "@/ai/flows/chatting";
 import { updateKnowledgeBase } from "@/ai/flows/indexing";
 import * as db from "@/db";
 import type { SessionId } from "@/db/schema";
@@ -92,12 +92,12 @@ bot.command("info", async (ctx) => {
 
 bot.on(":text", async (ctx) => {
   try {
-    await ctx.api.sendChatAction(ctx.chat.id, "typing")
+    await ctx.api.sendChatAction(ctx.chat.id, "typing");
 
     let session = ctx.session;
     if (session === undefined) {
       const sessionRow = await db.createSession({
-        systemPrompt: "TODO",
+        systemPrompt: makeSystemPrompt(),
       });
       session = {
         sessionId: sessionRow.id,

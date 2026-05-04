@@ -4,6 +4,7 @@ import { escapeFilename, showError } from "@/utilities";
 import { z } from "genkit";
 import path from "path";
 
+// TODO: also include some categorizational tags in the note
 export const createNote = ai.defineTool(
   {
     name: "createNote",

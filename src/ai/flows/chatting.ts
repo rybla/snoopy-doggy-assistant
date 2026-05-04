@@ -1,5 +1,5 @@
 import ai from "@/ai";
-import { searchFiles, searchKnowledgeBase } from "@/ai/tools/indexing";
+import { searchFilesIndex, searchKnowledgeBase } from "@/ai/tools/indexing";
 import { createNote } from "@/ai/tools/notes";
 import { completeTask, createTask, getActiveTasks } from "@/ai/tools/tasks";
 import * as db from "@/db";
@@ -62,7 +62,7 @@ export const normalChat = ai.defineFlow(
         completeTask,
         searchKnowledgeBase,
         createNote,
-        searchFiles,
+        searchFilesIndex,
       ],
       toolChoice: "auto",
       maxTurns: 4,

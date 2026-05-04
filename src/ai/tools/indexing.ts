@@ -1,8 +1,8 @@
 import ai from "@/ai";
 import {
-  filesDbUri,
-  filesRef,
-  filesTableName,
+  filesIndexDbUri,
+  filesIndexRef,
+  filesIndexTableName,
   knowledgeBaseDbUri,
   knowledgeBaseRef,
   knowledgeBaseTableName,
@@ -39,11 +39,11 @@ export const searchKnowledgeBase = ai.defineTool(
   },
 );
 
-export const searchFiles = ai.defineTool(
+export const searchFilesIndex = ai.defineTool(
   {
-    name: "searchFiles",
+    name: "searchFilesIndex",
     description:
-      "Search your archive of files uploaded by the user for clauses that are semantically related to the query.",
+      "Search your index of files uploaded by the user for clauses that are semantically related to the query.",
     inputSchema: z.object({
       query: z.string(),
     }),
@@ -53,11 +53,11 @@ export const searchFiles = ai.defineTool(
   },
   async (input) => {
     const docs: Document[] = await ai.retrieve({
-      retriever: filesRef,
+      retriever: filesIndexRef,
       query: input.query,
       options: {
-        dbUri: filesDbUri,
-        tableName: filesTableName,
+        dbUri: filesIndexDbUri,
+        tableName: filesIndexTableName,
         whereFilter: null,
         k: 3,
       } as never,

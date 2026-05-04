@@ -152,10 +152,11 @@ export const searchKnowledgeBase = ai.defineFlow(
 );
 
 /**
- * Extracts important details from recent messages and inserts them into the knowledge base.
- * This flow takes a start date, fetches messages since that date, and uses the AI model
- * to generate simple declarative sentences summarizing those messages. These sentences
- * are then appended to the vector database.
+ * Extracts important details from recent messages and inserts them into the
+ * knowledge base. This flow takes a start date, fetches messages since that
+ * date, and uses the AI model to generate simple declarative sentences
+ * summarizing those messages. These sentences are then appended to the vector
+ * database.
  */
 export const updateKnowledgeBase = ai.defineFlow(
   {
@@ -248,6 +249,64 @@ ${messages
       return { success: true, paragraphsCount: paragraphs.length } as const;
     } catch (error) {
       return { success: false, error: showError(error) } as const;
+    }
+  },
+);
+
+
+export const extendFilesIndex = ai.defineFlow(
+  {
+    name: "extendFilesIndex",
+    inputSchema: z.object({
+      text: z.string(),
+      source: z.string(),
+    }),
+    outputSchema: z.union([
+      z.object({
+        success: z.literal(true),
+        documentsCount: z.number(),
+      }),
+      z.object({
+        success: z.literal(false),
+        documentsIndexed: z.number(),
+        error: z.string(),
+      }),
+    ]),
+  },
+  async (input) => {
+    try {
+      const now = Date.now();
+
+      const chunks = chunk(input.text, {
+        minLength: 1000,
+        maxLength: 2000,
+        splitter: "sentence",
+        overlap: 100,
+        delimiters: "",
+      });
+
+      const documents = chunks.map((text) =>
+        Document.fromText(text, { source: input.source, timestamp: now }),
+      );
+
+      await ai.index({
+        indexer: knowledgeBaseRef,
+        documents,
+        options: {
+          writeMode: WriteMode.Append,
+        } as never,
+      });
+
+      return {
+        success: true,
+        documentsCount: documents.length,
+      } as const;
+    } catch (error) {
+      return {
+        success: false,
+        documentsIndexed: 0,
+        error: showError(error),
+      } as const;
     }
   },
 );
