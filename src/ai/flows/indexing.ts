@@ -7,6 +7,7 @@ import {
 import { getMessagesSince } from "@/db";
 import env from "@/env";
 import { matchEnum, showError } from "@/utilities";
+import { googleAI } from "@genkit-ai/google-genai";
 import { Document, DocumentDataSchema, z } from "genkit";
 import { WriteMode } from "genkitx-lancedb";
 import { chunk } from "llm-chunk";
@@ -186,6 +187,12 @@ export const updateKnowledgeBase = ai.defineFlow(
       // Use AI to process the messages and generate an exhaustive collection of simple sentences.
       // We instruct the model to use the '<subject> <verb> <object>' structure for optimal retrieval later.
       const response = await ai.generate({
+        model: googleAI.model("gemini-3.1-pro-preview"),
+        config: {
+          thinkingConfig: {
+            thinkingLevel: "HIGH",
+          },
+        },
         system: `
 Your task is to extract important details from a chat transcript between an assistant and the user, ${env.USERNAME}, as an exhaustive collection of self-contained paragraphs. Each paragraph should be 2-3 sentences long, and describe a particular detail discussed by ${env.USERNAME}.
         `.trim(),
