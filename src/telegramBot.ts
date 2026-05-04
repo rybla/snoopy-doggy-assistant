@@ -27,6 +27,15 @@ type SessionData =
 type MyContext = Context & SessionFlavor<SessionData>;
 
 // ----------------------------------------------------------------------------
+// Global state
+// ----------------------------------------------------------------------------
+
+/**
+ * The ID of the most recently active session.
+ */
+export let mostRecentSessionId: SessionId | undefined = undefined;
+
+// ----------------------------------------------------------------------------
 // Define bot
 // ----------------------------------------------------------------------------
 
@@ -109,6 +118,8 @@ bot.on(":text", async (ctx) => {
       };
     }
     ctx.session = session;
+    // Update the global most recent session ID to the current session's ID
+    mostRecentSessionId = session.sessionId;
 
     session.messageCount++;
 
