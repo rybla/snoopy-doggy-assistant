@@ -239,6 +239,40 @@ scheduleDailyAction({
   },
 });
 
+scheduleDailyAction({
+  label: "promptUserWithLastDiaryEntry",
+  schedule: {
+    type: "sampleTimeOfDay",
+    timeOfDayOptions: [
+      { hour: 10, minute: 14 },
+      { hour: 11, minute: 4 },
+      { hour: 13, minute: 2 },
+      { hour: 14, minute: 5 },
+      { hour: 15, minute: 9 },
+    ],
+  },
+  state: {},
+  async action(state) {
+    // Retrieve the most recent diary entry from the database
+    const lastDiaryEntry = await db.getLastDiaryEntry();
+
+    // If an entry exists, send a summary message to all authorized users
+    if (lastDiaryEntry) {
+      const message = `These were our last conversation topics: ${escapeMarkdown(
+        lastDiaryEntry.content,
+      )}`;
+
+      for (const userId of env.TELEGRAM_ALLOWED_USER_IDS) {
+        await bot.api.sendMessage(userId, message, {
+          parse_mode: "MarkdownV2",
+        });
+      }
+    }
+
+    return state;
+  },
+});
+
 // ----------------------------------------------------------------------------
 // Start bot
 // ----------------------------------------------------------------------------
