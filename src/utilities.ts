@@ -26,8 +26,19 @@ export function do_<T>(k: () => T): T {
   return k();
 }
 
+/**
+ * Formats a given Date object into a string containing only the date.
+ * @param date - The Date object to format.
+ * @returns A string in the format 'YYYY-MM-DD'.
+ */
 export function showDate(date: Date): string {
-  return date.toISOString().split("T")[0]!;
+  // Extract local date components and pad to 2 digits
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+
+  // Combine into the required format
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 /**
@@ -79,4 +90,11 @@ export function escapeFilename(s: string): string {
 
 export function matchEnum<S extends string, T>(s: S, k: { [k in S]: () => T }) {
   return k[s]();
+}
+
+export function nextTimeOfDay(timeOfDay: {
+  hour: number;
+  minute: number;
+}): Date {
+  throw new Error("TODO");
 }

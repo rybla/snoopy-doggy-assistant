@@ -9,7 +9,7 @@ import { updateKnowledgeBase } from "@/ai/flows/indexing";
 import * as db from "@/db";
 import type { SessionId } from "@/db/schema";
 import env from "@/env";
-import { showError } from "@/utilities";
+import { do_, nextTimeOfDay, showError } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
 
 type SessionData =
@@ -127,22 +127,8 @@ bot.on(":photo", async (ctx) => {
  */
 function scheduleDailyKnowledgeBaseUpdate() {
   const now = new Date();
-
-  const nextTarget = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    5, // 5 AM
-    0,
-    0,
-  );
-
-  if (nextTarget.getTime() <= now.getTime()) {
-    // If 5am today has already passed, schedule for tomorrow
-    nextTarget.setDate(nextTarget.getDate() + 1);
-  }
-
-  const delay = nextTarget.getTime() - now.getTime();
+  const next = nextTimeOfDay({ hour: 5, minute: 0 });
+  const delay = next.getTime() - now.getTime();
 
   setTimeout(() => {
     void (async () => {
