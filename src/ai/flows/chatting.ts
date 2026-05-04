@@ -5,6 +5,7 @@ import { completeTask, createTask, getActiveTasks } from "@/ai/tools/tasks";
 import * as db from "@/db";
 import { SessionIdSchema } from "@/db/schema";
 import env from "@/env";
+import { log } from "@/logger";
 import { showDate, showTime } from "@/utilities";
 import { googleAI } from "@genkit-ai/google-genai";
 import { z } from "genkit";
@@ -54,7 +55,7 @@ export const normalChat = ai.defineFlow(
     }),
   },
   async (input) => {
-    console.log("normalChat", { input });
+    log("normalChat", { input });
 
     const session = await db.getSession({ id: input.sessionId });
     if (session === undefined) throw new Error("No session");

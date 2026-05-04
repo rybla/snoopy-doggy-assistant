@@ -20,7 +20,8 @@ import {
   randomItem,
   showError,
 } from "@/utilities";
-import { Bot, Context, session, type SessionFlavor } from "grammy";
+import { Bot, Context, InputFile, session, type SessionFlavor } from "grammy";
+import { log } from "@/logger";
 
 type SessionData =
   | undefined
@@ -48,6 +49,25 @@ const bot = new Bot<MyContext>(env.TELEGRAM_BOT_API_KEY);
 
 function initializeSessionData(): SessionData {
   return undefined;
+}
+
+async function getSessionFromContext(ctx: MyContext) {
+  let session = ctx.session;
+  if (session === undefined) {
+    const sessionRow = await db.createSession({
+      systemPrompt: makeSystemPrompt(),
+    });
+    session = {
+      sessionId: sessionRow.id,
+      messageCount: 0,
+    };
+  }
+  ctx.session = session;
+  // Update the global most recent session ID to the current session's ID
+  mostRecentSessionId = session.sessionId;
+
+  session.messageCount++;
+  return session;
 }
 
 bot.use(
@@ -82,22 +102,35 @@ await bot.api.setMyCommands([
   { command: "info", description: "Get current session info." },
 ]);
 
+bot.command("test", async (ctx) => {
+  const gifFile = new InputFile("assets/diary.gif");
+  await ctx.replyWithAnimation(gifFile);
+});
+
 bot.command("start", async (ctx) => {
+  log("command: start");
+
   await ctx.react("👍");
   ctx.session = initializeSessionData();
 });
 
 bot.command("help", async (ctx) => {
+  log("command: help");
+
   await ctx.react("👍");
   await ctx.reply("TODO");
 });
 
 bot.command("settings", async (ctx) => {
+  log("command: settings");
+
   await ctx.react("👍");
   await ctx.reply("TODO");
 });
 
 bot.command("tasks", async (ctx) => {
+  log("command: tasks");
+
   await ctx.react("👍");
   const tasks = await db.getActiveTasks();
   // Format each task as a bullet point and escape the label
@@ -110,35 +143,26 @@ bot.command("tasks", async (ctx) => {
 });
 
 bot.command("info", async (ctx) => {
+  log("command: info");
+
   await ctx.react("👍");
-  // Stringify the session data with 4-space indentation
-  const escapedJson = escapeMarkdownCodeBlock(
-    JSON.stringify(ctx.session ?? null, null, 4),
+  await ctx.reply(
+    `\`\`\`json\n${escapeMarkdownCodeBlock(
+      JSON.stringify(ctx.session ?? null, null, 4),
+    )}\n\`\`\``,
+    {
+      parse_mode: "MarkdownV2",
+    },
   );
-  await ctx.reply(`\`\`\`json\n${escapedJson}\n\`\`\``, {
-    parse_mode: "MarkdownV2",
-  });
 });
 
 bot.on(":text", async (ctx) => {
+  log("on: text", { message: ctx.message });
+
   try {
     await ctx.api.sendChatAction(ctx.chat.id, "typing");
 
-    let session = ctx.session;
-    if (session === undefined) {
-      const sessionRow = await db.createSession({
-        systemPrompt: makeSystemPrompt(),
-      });
-      session = {
-        sessionId: sessionRow.id,
-        messageCount: 0,
-      };
-    }
-    ctx.session = session;
-    // Update the global most recent session ID to the current session's ID
-    mostRecentSessionId = session.sessionId;
-
-    session.messageCount++;
+    let session = await getSessionFromContext(ctx);
 
     const response = await normalChat({
       sessionId: session.sessionId,
@@ -152,10 +176,13 @@ bot.on(":text", async (ctx) => {
 });
 
 bot.on(":photo", async (ctx) => {
+  log("on: photo");
   await ctx.reply("I can't respond to photos yet.");
 });
 
 bot.on(":document", async (ctx) => {
+  log("on: document");
+
   try {
     await ctx.api.sendChatAction(ctx.chat.id, "typing");
 
@@ -208,8 +235,31 @@ bot.on(":document", async (ctx) => {
 
     // Reply to the user with the summary
     await ctx.reply(
-      `I've successfully processed your document. Here's a summary:\n\n${summaryResult.summary}\n\nYou can ask me questions about this document or any of the others in the files index.`,
+      `I've successfully processed your document. Here's a summary:\n\n${summaryResult.summary}\n\nI'm ready to answer questions about this document or any of the others in the files index.`,
     );
+
+    let session = await getSessionFromContext(ctx);
+    await db.addMessages({
+      sessionId: session.sessionId,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              text: `I've uploaded a document to the files index. This is the document's summary:\n\n${summaryResult.summary}`,
+            },
+          ],
+        },
+        {
+          role: "model",
+          content: [
+            {
+              text: `I have reviewed the summary and am ready to answer questions about this document or any others in the files index.`,
+            },
+          ],
+        },
+      ],
+    });
   } catch (error) {
     await ctx.reply(`Error processing document: ${showError(error)}`);
   }
@@ -267,6 +317,13 @@ ${escapeMarkdown(lastDiaryEntry.content)}
       `.trim();
 
       for (const userId of env.TELEGRAM_ALLOWED_USER_IDS) {
+        // Create an InputFile object from the GIF file
+        const gifFile = new InputFile("assets/diary.gif");
+
+        // Send the GIF as an animation to the user
+        await bot.api.sendAnimation(userId, gifFile);
+
+        // Send the summary message to the user
         await bot.api.sendMessage(userId, message, {
           parse_mode: "MarkdownV2",
         });
