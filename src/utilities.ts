@@ -124,3 +124,12 @@ export function nextTimeOfDay(
 
   return targetDate;
 }
+/**
+ * Escapes a string for use in Telegram's MarkdownV2 format.
+ * Special characters are: _ * [ ] ( ) ~ ` > # + - = | { } . !
+ * @param s - The string to escape.
+ * @returns The escaped string.
+ */
+export function escapeMarkdown(s: string): string {
+  return s.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+}

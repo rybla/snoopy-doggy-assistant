@@ -14,7 +14,7 @@ import { PDFParse } from "pdf-parse";
 import type { SessionId } from "@/db/schema";
 import env from "@/env";
 import { scheduleDailyAction } from "@/schedule";
-import { showError } from "@/utilities";
+import { escapeMarkdown, showError } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
 
 type SessionData =
@@ -95,14 +95,24 @@ bot.command("settings", async (ctx) => {
 bot.command("tasks", async (ctx) => {
   await ctx.react("👍");
   const tasks = await db.getActiveTasks();
-  await ctx.reply(
-    `Active tasks:\n\n${tasks.map((task) => `- ${task.label}`).join("\n")}`,
-  );
+  // Format each task as a bullet point and escape the label
+  const taskList = tasks
+    .map((task) => `• ${escapeMarkdown(task.label)}`)
+    .join("\n");
+  await ctx.reply(`*Active tasks:*\n\n${taskList}`, {
+    parse_mode: "MarkdownV2",
+  });
 });
 
 bot.command("info", async (ctx) => {
   await ctx.react("👍");
-  await ctx.reply(`\`\`\`${JSON.stringify(ctx.session, null, 4)}\`\`\``);
+  // Stringify the session data with 4-space indentation
+  const sessionJson = JSON.stringify(ctx.session ?? null, null, 4);
+  // For MarkdownV2 code blocks, only backticks and backslashes need to be escaped
+  const escapedJson = sessionJson.replace(/[\\`]/g, "\\$&");
+  await ctx.reply(`\`\`\`json\n${escapedJson}\n\`\`\``, {
+    parse_mode: "MarkdownV2",
+  });
 });
 
 bot.on(":text", async (ctx) => {
