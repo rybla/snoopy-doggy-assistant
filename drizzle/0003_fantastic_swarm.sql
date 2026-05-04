@@ -1,0 +1,1 @@
+ALTER TABLE `sessions` ADD `timestamp` integer NOT NULL;

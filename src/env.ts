@@ -2,7 +2,7 @@ import { z } from "genkit";
 
 const EnvSchema = z.object({
   USERNAME: z.string(),
-  MAX_MESSAGES_LENGTH: z.number(),
+  MAX_MESSAGES_LENGTH: z.coerce.number(),
   CURRENT_LOCATION: z.string(),
   NOTES_DIRECTORY: z.string(),
   //
