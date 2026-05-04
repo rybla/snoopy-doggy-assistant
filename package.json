@@ -1,5 +1,5 @@
 {
-  "name": "snoopy-doggy",
+  "name": "snoopy-doggy-assistant",
   "module": "index.ts",
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
