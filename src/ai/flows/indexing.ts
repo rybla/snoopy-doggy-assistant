@@ -1,13 +1,13 @@
 import ai from "@/ai";
-import { WriteMode } from "genkitx-lancedb";
-import { Document, DocumentDataSchema, z } from "genkit";
-import { chunk } from "llm-chunk";
 import {
   knowledgeBaseDbUri,
   knowledgeBaseRef,
   knowledgeBaseTableName,
 } from "@/ai/retrievers";
 import { showError } from "@/utilities";
+import { Document, DocumentDataSchema, z } from "genkit";
+import { WriteMode } from "genkitx-lancedb";
+import { chunk } from "llm-chunk";
 
 export const extendKnowledgeBase = ai.defineFlow(
   {
@@ -87,5 +87,12 @@ export const queryKnowledgeBase = ai.defineFlow(
     });
 
     return { docs };
+  },
+);
+
+export const updateKnowledgeBase = ai.defineFlow(
+  "updateKnowledgeBase",
+  async () => {
+    throw new Error("TODO");
   },
 );

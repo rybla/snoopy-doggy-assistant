@@ -61,8 +61,16 @@ export async function addMessages(input: {
   );
 }
 
+/**
+ * Retrieves all messages from the database that have a timestamp after the given start date.
+ * @param input An object containing the startDate to filter messages by.
+ * @returns A promise that resolves to an array of messages matching the criteria.
+ */
 export async function getMessagesSince(input: { startDate: Date }) {
-  throw new Error("TODO");
+  // Query the messages table for records with a timestamp strictly greater than the provided startDate
+  return await db.query.messages.findMany({
+    where: (message, { gt }) => gt(message.timestamp, input.startDate),
+  });
 }
 
 // ----------------------------------------------------------------------------
