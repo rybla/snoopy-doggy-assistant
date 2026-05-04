@@ -17,6 +17,7 @@ import { scheduleDailyAction } from "@/schedule";
 import {
   escapeMarkdown,
   escapeMarkdownCodeBlock,
+  randomItem,
   showError,
 } from "@/utilities";
 import { Bot, Context, session, type SessionFlavor } from "grammy";
@@ -258,15 +259,57 @@ scheduleDailyAction({
 
     // If an entry exists, send a summary message to all authorized users
     if (lastDiaryEntry) {
-      const message = `These were our last conversation topics: ${escapeMarkdown(
-        lastDiaryEntry.content,
-      )}`;
+      const message = `
+_(diary reminder)_
+These were our last conversation topics:
+
+${escapeMarkdown(lastDiaryEntry.content)}
+      `.trim();
 
       for (const userId of env.TELEGRAM_ALLOWED_USER_IDS) {
         await bot.api.sendMessage(userId, message, {
           parse_mode: "MarkdownV2",
         });
       }
+    }
+
+    return state;
+  },
+});
+
+scheduleDailyAction({
+  label: "promptUserWithRandomActiveTask",
+  schedule: {
+    type: "sampleTimeOfDay",
+    timeOfDayOptions: [
+      { hour: 10, minute: 45 },
+      { hour: 11, minute: 30 },
+      { hour: 14, minute: 15 },
+      { hour: 16, minute: 45 },
+      { hour: 19, minute: 15 },
+    ],
+  },
+  state: {},
+  async action(state) {
+    // Get all active tasks from the database
+    const activeTasks = await db.getActiveTasks();
+
+    const randomTask = randomItem(activeTasks);
+    if (randomTask === undefined) return state;
+
+    // Construct the message with the task's label and description
+    const message = `
+_(active task reminder)_
+Btw here's one of your active tasks: *${escapeMarkdown(randomTask.label)}*
+
+${escapeMarkdown(randomTask.description)}
+    `.trim();
+
+    // Send the message to all authorized users
+    for (const userId of env.TELEGRAM_ALLOWED_USER_IDS) {
+      await bot.api.sendMessage(userId, message, {
+        parse_mode: "MarkdownV2",
+      });
     }
 
     return state;
