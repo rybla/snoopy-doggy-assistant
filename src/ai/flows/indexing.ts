@@ -42,7 +42,7 @@ export const extendKnowledgeBase = ai.defineFlow(
         indexer: knowledgeBaseRef,
         documents,
         options: {
-          writeMode: WriteMode.Overwrite,
+          writeMode: WriteMode.Append,
         } as never,
       });
 

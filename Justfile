@@ -24,6 +24,11 @@ drizzle-unsafe-reset:
     just drizzle-generate
     just drizzle-migrate
 
+lance-unsafe-reset:
+    @echo "Unsafely resetting lance databases"
+
+    rm -rf database/lance
+
 format:
     @echo "Formatting entire project"
     bun prettier . --write
