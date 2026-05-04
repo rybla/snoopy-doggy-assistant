@@ -195,7 +195,7 @@ export const updateKnowledgeBase = ai.defineFlow(
           },
         },
         system: `
-Your task is to extract important details from a chat transcript between an assistant and the user, ${env.USERNAME}, as an exhaustive collection of self-contained paragraphs. Each paragraph should be 2-3 sentences long, and describe a particular detail discussed by ${env.USERNAME}.
+Your task is to extract important details from a chat transcript between an assistant and the user, ${env.USER_NAME}, as an exhaustive collection of self-contained paragraphs. Each paragraph should be 2-3 sentences long, and describe a particular detail discussed by ${env.USER_NAME}.
         `.trim(),
         prompt: `
 Transcript:
@@ -216,7 +216,7 @@ ${messages
           .join("")}\n\n`;
       },
       user() {
-        return `**${env.USERNAME}**\n\n${m.data.content
+        return `**${env.USER_NAME}**\n\n${m.data.content
           .map((c) => (c.text === undefined ? [] : [c.text]))
           .flat()
           .join("")}\n\n`;

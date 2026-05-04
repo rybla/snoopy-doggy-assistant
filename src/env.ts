@@ -1,9 +1,11 @@
 import { z } from "genkit";
 
 const EnvSchema = z.object({
-  USERNAME: z.string(),
+  USER_NAME: z.string(),
+  ASSISTANT_NAME: z.string(),
   MAX_MESSAGES_LENGTH: z.coerce.number(),
   CURRENT_LOCATION: z.string(),
+  FILES_DIRPATH: z.string(),
   NOTES_DIRECTORY: z.string(),
   //
   DATABASE_URL: z.string(),
@@ -15,7 +17,6 @@ const EnvSchema = z.object({
   HOST: z.string(),
   PORT: z.coerce.number(),
   LOGS_DIRPATH: z.string(),
-  FILES_DIRPATH: z.string(),
 });
 
 const env = EnvSchema.parse(process.env);
