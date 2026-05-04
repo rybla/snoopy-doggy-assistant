@@ -1,6 +1,9 @@
 install:
     bun install --minimum-release-age 1036800
 
+add package:
+    bun add --minimum-release-age 1036800 {{package}}
+
 drizzle-generate:
     @echo "Generating migration"
     bun drizzle-kit generate

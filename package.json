@@ -20,7 +20,9 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@genkit-ai/google-genai": "^1.32.0",
     "@libsql/client": "^0.17.2",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.2",
+    "genkit": "^1.32.0"
   }
 }
