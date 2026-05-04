@@ -1,5 +1,5 @@
 install:
-    bun install --minimum-release-age 1036800
+    bun install
 
 add package:
     bun add --minimum-release-age 1036800 {{package}}
@@ -10,6 +10,7 @@ drizzle-generate:
 
 drizzle-migrate:
     @echo "Running migrations"
+    mkdir -p databases
     bun drizzle-kit migrate
 
 drizzle-unsafe-reset:
@@ -19,7 +20,7 @@ drizzle-unsafe-reset:
     mkdir drizzle
 
     rm -rf database
-    mkdir database
+    mkdir -p databases
 
     just drizzle-generate
     just drizzle-migrate
