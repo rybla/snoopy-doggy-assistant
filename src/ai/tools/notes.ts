@@ -41,7 +41,8 @@ export const createNote = ai.defineTool(
           `tags:\n${input.tags.map((tag) => `  - ${tag}`).join("\n")}`,
         );
       }
-      finalContent = `---\n${frontmatterLines.join("\n")}\n---` + finalContent;
+      finalContent =
+        `---\n${frontmatterLines.join("\n")}\n---\n\n` + finalContent;
 
       await Bun.file(path.join(env.NOTES_DIRECTORY, `${title}.md`)).write(
         finalContent,
